@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#090807" />
+    <title>Три окна</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./assets/icon-192.png" />
+    <link rel="preload" as="image" href="./assets/arrive-poster.jpg?v=153" fetchpriority="high" />
+    <link rel="preload" as="image" href="./assets/sign.webp" />
+    <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/literata-cyr.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="./assets/fonts/onest-cyr.woff2" crossorigin />
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Три окна" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <style>
+      html, body { background: #090807; }
+      .boot { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: radial-gradient(ellipse 70% 45% at 50% 62%, #2a1209 0%, #120806 55%, #090807 100%); color: #f3e6d6; transition: opacity 0.4s ease; overflow: hidden; }
+      .boot.gone { opacity: 0; pointer-events: none; }
+      .boot-mark { display: grid; justify-items: center; gap: 26px; }
+      .boot .sign {
+        display: block;
+        width: 250px;
+        padding: 0;
+        background: none;
+        transform-origin: 50% 0;
+        animation: boot-sway 6.4s ease-in-out infinite;
+      }
+      .boot .sign-plate {
+        position: relative;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 2px;
+        width: 250px;
+        aspect-ratio: 720 / 396;
+        padding: 7% 8% 3%;
+        box-sizing: border-box;
+        color: #ecc787;
+        text-shadow: 0 1px 0 rgba(20, 8, 2, 0.9), 0 0 12px rgba(0, 0, 0, 0.55);
+        filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.6));
+      }
+      .boot .sign-board {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        pointer-events: none;
+        filter: none;
+      }
+      .boot .sign small, .boot .sign b { position: relative; z-index: 1; }
+      .boot .sign small {
+        font: 600 0.6rem/1 Onest, sans-serif;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: #d39a5c;
+        opacity: 0.9;
+      }
+      .boot .sign b {
+        margin: 0;
+        font: 700 clamp(1.6rem, 7vw, 2rem)/1.08 Literata, Georgia, serif;
+        letter-spacing: 0.01em;
+        color: inherit;
+        opacity: 0.94;
+      }
+      @keyframes boot-sway {
+        0%, 100% { transform: rotate(0deg); }
+        32% { transform: rotate(-0.7deg); }
+        68% { transform: rotate(0.7deg); }
+      }
+      .hearth { position: relative; width: 150px; height: 170px; margin-top: 24px; transform: scale(1.3); transform-origin: 50% 100%; }
+      .hearth .halo { position: absolute; left: 50%; bottom: 6px; width: 260px; height: 200px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 122, 26, 0.32), rgba(255, 90, 20, 0.1) 55%, transparent); animation: halo 2.6s ease-in-out infinite; }
+      .hearth .flame { position: absolute; left: 50%; bottom: 26px; border-radius: 50% 50% 46% 46% / 64% 64% 36% 36%; transform-origin: 50% 100%; mix-blend-mode: screen; filter: blur(0.6px); }
+      .hearth .f1 { width: 64px; height: 100px; margin-left: -32px; background: radial-gradient(ellipse 50% 60% at 50% 78%, #ff9a2e, #e24a10 60%, rgba(180, 30, 5, 0) 76%); animation: lick 1.3s ease-in-out infinite; }
+      .hearth .f2 { width: 40px; height: 76px; margin-left: -34px; background: radial-gradient(ellipse 50% 60% at 50% 78%, #ffb54a, #ff6a18 60%, rgba(255, 80, 10, 0) 76%); animation: lick 1.05s ease-in-out -0.4s infinite; }
+      .hearth .f3 { width: 38px; height: 70px; margin-left: -4px; background: radial-gradient(ellipse 50% 60% at 50% 78%, #ffb54a, #ff6a18 60%, rgba(255, 80, 10, 0) 76%); animation: lick 1.2s ease-in-out -0.8s infinite; }
+      .hearth .f4 { width: 26px; height: 52px; margin-left: -13px; bottom: 28px; background: radial-gradient(ellipse 50% 60% at 50% 80%, #fff4cf, #ffd27a 45%, rgba(255, 170, 60, 0) 75%); animation: lick 0.9s ease-in-out -0.2s infinite; }
+      .hearth .log { position: absolute; left: 50%; bottom: 14px; width: 104px; height: 18px; margin-left: -52px; border-radius: 9px; background: linear-gradient(180deg, #5a3320, #2b160b 70%); box-shadow: inset 0 -3px 6px rgba(255, 110, 30, 0.45), inset 0 2px 0 rgba(255, 190, 120, 0.15); }
+      .hearth .log.a { transform: rotate(14deg); }
+      .hearth .log.b { transform: rotate(-14deg); }
+      .hearth .coals { position: absolute; left: 50%; bottom: 6px; width: 120px; height: 16px; margin-left: -60px; border-radius: 50%; background: radial-gradient(circle at 22% 50%, #ffb347 0 3px, transparent 5px), radial-gradient(circle at 46% 40%, #ff8a2a 0 4px, transparent 6px), radial-gradient(circle at 68% 55%, #ffc760 0 3px, transparent 5px), radial-gradient(circle at 84% 45%, #ff7a1a 0 2px, transparent 4px), radial-gradient(ellipse at 50% 50%, #7a2a0c, #2a0e05 70%, transparent 72%); animation: smoulder 2.2s ease-in-out infinite; }
+      .hearth i { position: absolute; left: 50%; bottom: 60px; width: var(--s, 3px); height: var(--s, 3px); margin-left: var(--x); border-radius: 50%; background: #ffe2a0; box-shadow: 0 0 6px 2px rgba(255, 150, 40, 0.85); opacity: 0; animation: spark var(--t) ease-out var(--d) infinite; }
+      @keyframes lick { 0%, 100% { transform: scale(1, 1) skewX(0deg); } 25% { transform: scale(0.94, 1.08) skewX(3deg); } 50% { transform: scale(1.04, 0.94) skewX(-2deg); } 75% { transform: scale(0.97, 1.1) skewX(-4deg); } }
+      @keyframes halo { 0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); } 45% { opacity: 1; transform: translateX(-50%) scale(1.06); } 70% { opacity: 0.75; } }
+      @keyframes smoulder { 50% { filter: brightness(1.35); } }
+      @keyframes spark { 0% { opacity: 0; transform: translate(0, 0) scale(1); } 10% { opacity: 1; } 55% { transform: translate(calc(var(--dx) * 0.6), -80px) scale(0.8); } 100% { opacity: 0; transform: translate(var(--dx), -150px) scale(0.3); } }
+      @media (prefers-reduced-motion: reduce) { .hearth *, .boot .sign { animation: none !important; } .hearth i { display: none; } .boot { transition: none; } }
+      body.is-entrance > .boot { display: none; }
+      body.skip-arrive #stage { visibility: hidden; }
+    </style>
+    <link rel="stylesheet" href="./assets/fonts.css" />
+    <link rel="stylesheet" href="./styles.css?v=158" />
+  </head>
+  <body>
+    <script>
+      try {
+        if (localStorage.getItem("arkanum_arrived") === "1") document.body.classList.add("skip-arrive")
+        else document.body.classList.add("is-entrance", "is-step")
+      } catch (e) {}
+    </script>
+    <div id="boot" class="boot" role="status" aria-label="Таверна открывается">
+      <div class="boot-mark">
+        <div class="sign"><div class="sign-plate"><img class="sign-board" src="./assets/sign.webp" alt="" decoding="sync" fetchpriority="high" /><small>Таверна</small><b>Три окна</b></div></div>
+        <div class="hearth" aria-hidden="true">
+          <span class="halo"></span>
+          <span class="flame f1"></span><span class="flame f2"></span><span class="flame f3"></span><span class="flame f4"></span>
+          <span class="log a"></span><span class="log b"></span><span class="coals"></span>
+          <i style="--x:-6px;--d:0.19s;--t:2.11s;--dx:-10px;--s:4px"></i><i style="--x:-20px;--d:0.24s;--t:1.68s;--dx:-9px;--s:2px"></i><i style="--x:1px;--d:0.42s;--t:1.91s;--dx:9px;--s:4px"></i><i style="--x:-19px;--d:0.7s;--t:2.42s;--dx:-26px;--s:4px"></i><i style="--x:-1px;--d:0.69s;--t:1.89s;--dx:-17px;--s:3px"></i><i style="--x:-17px;--d:0.96s;--t:2.34s;--dx:-11px;--s:4px"></i><i style="--x:10px;--d:1.15s;--t:2.08s;--dx:-26px;--s:2px"></i><i style="--x:13px;--d:1.23s;--t:2.48s;--dx:32px;--s:3px"></i><i style="--x:3px;--d:1.48s;--t:2.19s;--dx:15px;--s:2px"></i><i style="--x:18px;--d:1.69s;--t:1.71s;--dx:24px;--s:3px"></i><i style="--x:-5px;--d:1.85s;--t:1.97s;--dx:-11px;--s:4px"></i><i style="--x:0px;--d:1.9s;--t:2.04s;--dx:21px;--s:2px"></i><i style="--x:16px;--d:2.06s;--t:2.33s;--dx:18px;--s:3px"></i><i style="--x:12px;--d:2.31s;--t:2.64s;--dx:-34px;--s:2px"></i><i style="--x:-9px;--d:2.47s;--t:2.46s;--dx:-31px;--s:3px"></i><i style="--x:15px;--d:2.67s;--t:2.49s;--dx:17px;--s:3px"></i>
+        </div>
+      </div>
+    </div>
+    <div class="room">
+      <main id="stage"><section class="arrive">
+        <img class="arrive-poster" src="assets/arrive-poster.jpg?v=153" alt="" fetchpriority="high" />
+        <video id="arrive" poster="assets/arrive-poster.jpg?v=153" muted playsinline webkit-playsinline preload="none">
+          <source src="assets/arrive.mp4?v=153" type="video/mp4" />
+        </video>
+        <div class="arrive-veil"></div>
+        <div class="arrive-slot">
+          <div class="arrive-word"><small>Таверна</small><h1>Три окна</h1></div>
+          <div class="glass">
+            <p class="blurb">Шестеро уже сели за&nbsp;столы: те, кто гадает на&nbsp;таро, рунах и&nbsp;Книге перемен.</p>
+            <button class="primary" data-action="story" data-early="1" type="button">Дальше</button>
+          </div>
+        </div>
+      </section></main>
+    </div>
+    <div id="lbox" class="lbox hidden"></div>
+    <script>
+      document.querySelector("[data-early]")?.addEventListener("click", function () {
+        this.dataset.queued = "1"
+      })
+    </script>
+    <script src="./app.bundle.js?v=158"></script>
+  </body>
+</html>
