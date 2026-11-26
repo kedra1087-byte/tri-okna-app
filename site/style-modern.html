@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Современные макеты — Три окна</title>
+    <link rel="stylesheet" href="./assets/fonts.css" />
+    <style>
+      * { box-sizing: border-box; }
+      button { font: inherit; color: inherit; }
+      body {
+        margin: 0;
+        background: #141416;
+        color: #f4f4f5;
+        font-family: Onest, sans-serif;
+      }
+      .board { width: min(1100px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 72px; }
+      .lead { max-width: 40rem; }
+      .lead h1 { margin: 8px 0 10px; font-size: 2.4rem; font-weight: 600; letter-spacing: -0.04em; }
+      .lead p { margin: 0; color: #c4c4c8; line-height: 1.5; }
+      .kicker { margin: 0; color: #ff8a2b; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+      .variant { margin-top: 42px; }
+      .variant h2 { margin: 6px 0; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.03em; }
+      .variant > p { margin: 0 0 16px; color: #c4c4c8; max-width: 38rem; line-height: 1.45; }
+      .row { display: flex; flex-wrap: wrap; gap: 18px; }
+      figure { margin: 0; width: 300px; }
+      figcaption { margin-top: 8px; color: #bdbdc2; font-size: 0.86rem; line-height: 1.35; }
+
+      .phone {
+        position: relative;
+        overflow: hidden;
+        min-height: 560px;
+        padding: 18px 14px 16px;
+        border-radius: 28px;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .phone::before {
+        content: "";
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        top: -70px;
+        right: -60px;
+        background: radial-gradient(circle, var(--glow), transparent 68%);
+        pointer-events: none;
+      }
+      .phone > * { position: relative; }
+      .phone h3 { margin: 0; font-size: 1.7rem; font-weight: 600; letter-spacing: -0.04em; line-height: 1.05; }
+      .sub { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+      .field, .area {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--text);
+        border-radius: 16px;
+        padding: 12px 14px;
+        font: inherit;
+        font-size: 0.95rem;
+      }
+      .area { min-height: 78px; resize: none; }
+      .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+      .pill {
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+      .pill.on { background: var(--accent); color: #1a0c05; border-color: transparent; font-weight: 600; }
+      .cta {
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #1a0c05;
+        font-weight: 600;
+        font-size: 0.98rem;
+      }
+      .texty { background: none; border: 0; color: var(--muted); padding: 0; font-size: 0.88rem; }
+      .hero-card {
+        height: 148px;
+        border-radius: 22px;
+        overflow: hidden;
+        background:
+          linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.05)),
+          var(--shot) center 30% / cover no-repeat;
+        display: flex;
+        align-items: flex-end;
+        padding: 14px;
+      }
+      .hero-card b { font-size: 1.35rem; letter-spacing: -0.03em; }
+      .person, .bubble {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 8px;
+        border-radius: 18px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        text-align: left;
+      }
+      .person img, .ava {
+        width: 52px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 14px;
+      }
+      .ava { width: 44px; height: 44px; border-radius: 50%; }
+      .person b, .line b { display: block; font-size: 0.98rem; }
+      .person span, .line span { color: var(--muted); font-size: 0.78rem; line-height: 1.3; }
+      .person.dim { opacity: 0.55; }
+      .spread { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .spread article {
+        background: var(--card);
+        border-radius: 16px;
+        padding: 6px 6px 8px;
+        border: 1px solid var(--line);
+        text-align: center;
+      }
+      .spread img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; display: block; }
+      .spread i { display: block; margin-top: 6px; font-style: normal; color: var(--accent); font-size: 0.68rem; }
+      .spread b { display: block; font-size: 0.78rem; line-height: 1.15; }
+      .note {
+        margin: 0;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        font-size: 0.86rem;
+        line-height: 1.4;
+      }
+      .line {
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 4px;
+        text-align: left;
+        background: none;
+        border: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .go { color: var(--accent); font-size: 1.1rem; }
+      .quiet-list { display: flex; flex-direction: column; gap: 10px; }
+      .quiet-list button {
+        text-align: left;
+        background: none;
+        border: 0;
+        padding: 0;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+      .quiet-list .on { color: var(--text); }
+      .quiet-list .on::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: var(--accent); }
+      .big-card {
+        border-radius: 24px;
+        overflow: hidden;
+        background: var(--card);
+      }
+      .big-card img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; display: block; max-height: 240px; }
+      .big-card p { margin: 0; padding: 12px 14px 14px; }
+      .stack { display: flex; flex-direction: column; gap: 8px; }
+
+      .glow {
+        --bg: #090807;
+        --card: rgba(32, 20, 12, 0.88);
+        --line: rgba(255, 138, 43, 0.28);
+        --accent: #ff7a1a;
+        --text: #f7f1ea;
+        --muted: #c3b2a4;
+        --glow: rgba(255, 106, 18, 0.7);
+        --shot: url("./assets/arrive-poster.jpg");
+      }
+      .list {
+        --bg: #101012;
+        --card: #1c1c20;
+        --line: rgba(255, 255, 255, 0.08);
+        --accent: #ff8a2b;
+        --text: #fafafa;
+        --muted: #a1a1aa;
+        --glow: transparent;
+      }
+      .quiet {
+        --bg: #070707;
+        --card: #141414;
+        --line: rgba(255, 255, 255, 0.06);
+        --accent: #ff6a00;
+        --text: #f5f5f5;
+        --muted: #8d8d8d;
+        --glow: rgba(255, 106, 0, 0.28);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="board">
+      <header class="lead">
+        <p class="kicker">Макеты, не приложение</p>
+        <h1>Три современных варианта</h1>
+        <p>Референс — тёмный продукт с оранжевым свечением, скруглёнными карточками и гротеском. Золотая рама с прошлого макета сюда не входит. Заход тот же: вопрос, потом таролог, потом стол.</p>
+      </header>
+
+      <section class="variant glow">
+        <p class="kicker">Вариант А</p>
+        <h2>Очаг</h2>
+        <p>Ближе всего к референсу. Чёрный фон, оранжевое пятно света, крупная карточка с картинкой, круглая кнопка.</p>
+        <div class="row">
+          <figure>
+            <div class="phone">
+              <div class="hero-card"><b>Три окна</b></div>
+              <h3>О чём спросить карты?</h3>
+              <textarea class="area" readonly>Что мне ждать в отношениях?</textarea>
+              <div class="pills">
+                <span class="pill on">о любви</span>
+                <span class="pill">о работе</span>
+                <span class="pill">о деньгах</span>
+                <span class="pill">о моём пути</span>
+              </div>
+              <button class="cta" type="button">Выбрать таролога</button>
+            </div>
+            <figcaption>Вопрос. Картина зала — карточка сверху, не фон на весь экран.</figcaption>
+          </figure>
+          <figure>
+            <div class="phone">
+              <p class="sub">юля · Дева · IV</p>
+              <h3>К кому сядете?</h3>
+              <button class="person" type="button"><img src="./assets/iris.webp" alt="" /><span><b>Ирис Вейл</b><span>Три карты на ваш вопрос</span></span></button>
+              <button class="person" type="button"><img src="./assets/cael.webp" alt="" /><span><b>Каэль Морн</b><span>Одна карта декана</span></span></button>
+              <button class="person dim" type="button"><img src="./assets/nerra.webp" alt="" /><span><b>Госпожа Нерра</b><span>Место закрыто</span></span></button>
+              <button class="person dim" type="button"><img src="./assets/sol.webp" alt="" /><span><b>Брат Соль</b><span>Место закрыто</span></span></button>
+            </div>
+            <figcaption>Выбор. Портрет в скруглённой карточке, без золотой рамки.</figcaption>
+          </figure>
+          <figure>
+            <div class="phone">
+              <p class="sub">Ирис Вейл</p>
+              <h3>Ваш вопрос</h3>
+              <div class="spread">
+                <article><img src="./cards/card_emperor.jpg" alt="" /><i>Суть</i><b>Император</b></article>
+                <article><img src="./cards/card_priestess.jpg" alt="" /><i>Делать</i><b>Жрица</b></article>
+                <article><img src="./cards/card_swords_page.jpg" alt="" /><i>Итог</i><b>Паж мечей</b></article>
+              </div>
+              <p class="note">Спокойная уверенность — ваша броня. Наведите порядок там, где шатко.</p>
+              <button class="cta" type="button">Переложить</button>
+            </div>
+            <figcaption>Стол. Карты скруглены, смысл отдельной карточкой.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="variant list">
+        <p class="kicker">Вариант Б</p>
+        <h2>Лента</h2>
+        <p>Спокойнее, ближе к экрану чатов из референса. Мало свечения, люди списком, оранжевый только у выбранного и у кнопки.</p>
+        <div class="row">
+          <figure>
+            <div class="phone">
+              <p class="sub">юля</p>
+              <h3>О чём спросить карты?</h3>
+              <textarea class="area" readonly>Что мне ждать в отношениях?</textarea>
+              <div class="pills">
+                <span class="pill on">о любви</span>
+                <span class="pill">о работе</span>
+                <span class="pill">о деньгах</span>
+                <span class="pill">о пути</span>
+              </div>
+              <button class="cta" type="button">Дальше</button>
+              <button class="texty" type="button">Без вопроса — расклад на день</button>
+            </div>
+            <figcaption>Вопрос. Поле и темы, без декоративной шапки.</figcaption>
+          </figure>
+          <figure>
+            <div class="phone">
+              <h3>К кому сядете?</h3>
+              <p class="sub">«о любви и отношениях»</p>
+              <button class="line" type="button"><img class="ava" src="./assets/iris.webp" alt="" /><span><b>Ирис Вейл</b><span>Арканум · свободно</span></span><span class="go">›</span></button>
+              <button class="line" type="button"><img class="ava" src="./assets/cael.webp" alt="" /><span><b>Каэль Морн</b><span>Золотая заря · свободно</span></span><span class="go">›</span></button>
+              <button class="line" type="button"><img class="ava" src="./assets/nerra.webp" alt="" /><span><b>Госпожа Нерра</b><span>Прилив · закрыто</span></span><span class="go">›</span></button>
+              <button class="line" type="button"><img class="ava" src="./assets/sol.webp" alt="" /><span><b>Брат Соль</b><span>Уголь · закрыто</span></span><span class="go">›</span></button>
+            </div>
+            <figcaption>Выбор. Как список диалогов: круглый портрет, имя, одна строка.</figcaption>
+          </figure>
+          <figure>
+            <div class="phone">
+              <p class="sub">Ирис ответила</p>
+              <h3>Три карты</h3>
+              <div class="spread">
+                <article><img src="./cards/card_emperor.jpg" alt="" /><i>Суть</i><b>Император</b></article>
+                <article><img src="./cards/card_priestess.jpg" alt="" /><i>Делать</i><b>Жрица</b></article>
+                <article><img src="./cards/card_swords_page.jpg" alt="" /><i>Итог</i><b>Паж</b></article>
+              </div>
+              <p class="note">Вы спросили про отношения. Суть — Император: наведите порядок там, где шатко.</p>
+            </div>
+            <figcaption>Стол. Ответ как сообщение под картами, без второй кнопки на виду.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="variant quiet">
+        <p class="kicker">Вариант В</p>
+        <h2>Тихий</h2>
+        <p>Тот же чёрный и оранжевый, но воздуха больше. Один крупный жест на экран, без сетки карточек.</p>
+        <div class="row">
+          <figure>
+            <div class="phone">
+              <p class="sub">юля</p>
+              <h3>О чём спросить карты?</h3>
+              <input class="field" value="Что мне ждать в отношениях?" readonly />
+              <div class="quiet-list">
+                <button class="on" type="button">о любви</button>
+                <button type="button">о работе</button>
+                <button type="button">о деньгах</button>
+                <button type="button">о моём пути</button>
+              </div>
+              <button class="cta" type="button">Выбрать таролога</button>
+            </div>
+            <figcaption>Вопрос. Темы — строки, выбранная отмечена оранжевой точкой.</figcaption>
+          </figure>
+          <figure>
+            <div class="phone">
+              <h3>К кому сядете?</h3>
+              <div class="stack">
+                <button class="person" type="button"><img src="./assets/iris.webp" alt="" /><span><b>Ирис Вейл</b><span>Слушает вопрос</span></span></button>
+                <button class="person" type="button"><img src="./assets/cael.webp" alt="" /><span><b>Каэль Морн</b><span>Смотрит на день рождения</span></span></button>
+              </div>
+              <p class="sub">Нерра и Соль сидят дальше. Их место открывается отдельно.</p>
+              <button class="texty" type="button">Показать закрытые столы</button>
+            </div>
+            <figcaption>Выбор. На первом экране только свободные. Закрытые не спорят за место.</figcaption>
+          </figure>
+          <figure>
+            <div class="phone">
+              <p class="sub">Суть вопроса</p>
+              <h3>Император</h3>
+              <div class="big-card">
+                <img src="./cards/card_emperor.jpg" alt="" />
+                <p>Спокойная уверенность — ваша броня. Наведите порядок там, где шатко.</p>
+              </div>
+              <p class="sub">Дальше: Жрица, затем Паж мечей.</p>
+            </div>
+            <figcaption>Стол. Одна карта крупно. Остальные названы и ждут листания.</figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

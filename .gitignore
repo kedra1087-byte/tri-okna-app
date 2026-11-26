@@ -1,0 +1,6 @@
+# Секреты и локальное состояние — никогда не коммитить
+site/cloudru.key
+site/data/
+site/store.json
+site/__pycache__/
+*.pyc

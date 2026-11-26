@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Макет стиля — Три окна</title>
+    <link rel="stylesheet" href="./assets/fonts.css" />
+    <style>
+      @font-face {
+        font-family: "Cormorant Garamond";
+        src: url("./assets/fonts/cormorant-500.ttf") format("truetype");
+        font-weight: 500;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Cormorant Garamond";
+        src: url("./assets/fonts/cormorant-600.ttf") format("truetype");
+        font-weight: 600;
+        font-display: swap;
+      }
+
+      :root {
+        --bg: #0c0a09;
+        --panel: #14110e;
+        --gold: #c4a15a;
+        --gold-dim: #8c7040;
+        --red: #6e2830;
+        --paper: #eadfcb;
+        --quiet: #b3a38e;
+        --ink: #140e0b;
+      }
+
+      * { box-sizing: border-box; }
+      button { font: inherit; color: inherit; background: none; padding: 0; border: 0; text-align: left; }
+
+      body {
+        margin: 0;
+        background: #221c17;
+        color: var(--paper);
+        font-family: Literata, Georgia, serif;
+      }
+
+      .board {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 64px;
+      }
+
+      .board-head { max-width: 40rem; margin-bottom: 28px; }
+      .board-head p { margin: 0; color: #d9cbb6; line-height: 1.5; }
+      .board-head h1 {
+        margin: 6px 0 10px;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 600;
+        font-size: 3rem;
+        line-height: 0.95;
+        color: #f3eadc;
+      }
+      .kicker {
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        color: var(--gold);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 28px 22px;
+      }
+
+      figure { margin: 0; }
+      figcaption {
+        margin-top: 10px;
+        color: #d9cbb6;
+        font-size: 0.92rem;
+        line-height: 1.4;
+      }
+
+      .device {
+        height: 692px;
+        background: var(--bg);
+        color: var(--paper);
+        border: 1px solid #4a3b2c;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .screen {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 22px 16px 12px;
+      }
+
+      .screen h2 {
+        margin: 0;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 600;
+        font-size: 2.35rem;
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: var(--gold);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-size: 0.68rem;
+      }
+
+      .copy { margin: 0; line-height: 1.45; color: var(--paper); font-size: 0.98rem; }
+      .quiet { margin: 0; color: var(--quiet); line-height: 1.4; font-size: 0.92rem; }
+      .count { margin: 0; color: var(--gold-dim); font-size: 0.82rem; }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 8px 12px;
+        border: 1px solid var(--gold);
+        background: transparent;
+        color: var(--paper);
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+      .btn.solid { background: var(--red); }
+      .btn.ghost {
+        border-color: transparent;
+        min-height: 36px;
+        color: var(--quiet);
+        font-size: 1.15rem;
+      }
+
+      .field { display: flex; flex-direction: column; gap: 6px; color: var(--quiet); font-size: 0.82rem; }
+      .box, .area {
+        width: 100%;
+        border: 1px solid var(--gold-dim);
+        background: #0c0a09;
+        color: var(--paper);
+        font: inherit;
+        font-size: 1rem;
+        padding: 10px 12px;
+        border-radius: 0;
+      }
+      .area { min-height: 72px; resize: none; }
+
+      .birth { display: grid; gap: 8px; }
+      .read { margin: 0; color: var(--gold); font-size: 0.92rem; }
+
+      .topics { display: flex; flex-wrap: wrap; gap: 8px; }
+      .topic {
+        border: 1px solid var(--gold-dim);
+        padding: 8px 10px;
+        color: var(--quiet);
+        font-size: 0.92rem;
+      }
+      .topic.on { background: var(--red); color: var(--paper); border-color: var(--gold); }
+
+      .rule {
+        height: 1px;
+        border: 0;
+        margin: 2px 0;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      }
+
+      .dock {
+        margin-top: auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--gold);
+        padding-top: 8px;
+      }
+      .dock span {
+        text-align: center;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.15rem;
+        color: var(--quiet);
+      }
+      .dock .on { color: var(--gold); }
+
+      .arrive {
+        padding: 0;
+        background:
+          linear-gradient(to top, rgba(12, 10, 9, 0.94) 0%, rgba(12, 10, 9, 0.2) 42%, rgba(12, 10, 9, 0.35) 100%),
+          url("./assets/arrive-poster.jpg") center 20% / cover no-repeat;
+      }
+      .arrive-plate {
+        margin-top: auto;
+        padding: 18px 16px 16px;
+        background: linear-gradient(to top, rgba(12, 10, 9, 0.55), transparent);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 8px;
+        border: 1px solid rgba(196, 161, 90, 0.55);
+        background: var(--panel);
+      }
+      .hero img {
+        width: 58px;
+        height: 74px;
+        object-fit: cover;
+        display: block;
+        border: 1px solid var(--gold);
+      }
+      .hero b {
+        display: block;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .hero small { color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.62rem; }
+      .hero span { display: block; color: var(--quiet); font-size: 0.78rem; line-height: 1.3; margin-top: 3px; }
+      .hero.locked { opacity: 0.72; }
+      .portrait { position: relative; }
+      .seal {
+        position: absolute;
+        left: 2px;
+        bottom: 2px;
+        background: rgba(12, 10, 9, 0.82);
+        color: var(--gold);
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+        padding: 1px 4px;
+      }
+
+      .spread {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .tarot {
+        background: var(--panel);
+        border: 1px solid var(--gold);
+        padding: 5px 5px 8px;
+        text-align: center;
+      }
+      .tarot img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; display: block; }
+      .tarot i {
+        display: block;
+        margin-top: 6px;
+        font-style: normal;
+        color: var(--gold);
+        font-size: 0.62rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .tarot b {
+        display: block;
+        margin-top: 2px;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+
+      .reading {
+        margin: 0;
+        padding-top: 4px;
+        border-top: 1px solid rgba(196, 161, 90, 0.4);
+        color: var(--paper);
+        font-size: 0.86rem;
+        line-height: 1.4;
+      }
+      .reading strong { color: var(--gold); font-weight: 500; }
+
+      .links { display: flex; justify-content: space-between; gap: 8px; }
+    </style>
+  </head>
+  <body>
+    <main class="board">
+      <header class="board-head">
+        <p class="kicker">Макет, не приложение</p>
+        <h1>Плоская рама</h1>
+        <p>Тёмный грунт, золото только как черта, тёмно-красный как единственная заливка. Прямые кнопки, антиква для имён, без скруглений и без коричневого свечения. Заход по шагам остаётся тем же.</p>
+      </header>
+      <div class="grid">
+        <figure>
+          <div class="device">
+            <section class="screen arrive">
+              <div class="arrive-plate">
+                <p class="eyebrow">Таверна</p>
+                <h2>Три окна</h2>
+                <p class="quiet">Четверо уже сели за столы.</p>
+                <div class="rule"></div>
+                <button class="btn solid" type="button">Дальше</button>
+                <button class="btn ghost" type="button">Пропустить</button>
+              </div>
+            </section>
+          </div>
+          <figcaption>1. Въезд. Картина на весь экран, подпись внизу, как табличка на двери.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="device">
+            <section class="screen">
+              <p class="eyebrow">Зал</p>
+              <h2>Четыре стола</h2>
+              <div class="rule"></div>
+              <p class="copy">Дверь закрывается тише, чем улица. Внутри уже сидят. Свечи, сукно, колоды рубашкой вверх. Никто не встаёт вас встречать.</p>
+              <p class="count">1 из 3</p>
+              <button class="btn solid" type="button">Дальше</button>
+            </section>
+          </div>
+          <figcaption>2. Приветствие. Одна фраза на экран, золотая черта вместо орнамента на весь лист.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="device">
+            <section class="screen">
+              <p class="eyebrow">Вас запомнят</p>
+              <h2>Как вас зовут?</h2>
+              <label class="field">Имя
+                <input class="box" value="юля" readonly />
+              </label>
+              <div>
+                <p class="quiet">Когда вы родились</p>
+                <div class="birth">
+                  <input class="box" value="7" readonly />
+                  <input class="box" value="сентябрь" readonly />
+                  <input class="box" value="1986" readonly />
+                </div>
+              </div>
+              <p class="read">7 сентября 1986 — Дева. Аркан — Император.</p>
+              <button class="btn solid" type="button">Запомнить</button>
+            </section>
+          </div>
+          <figcaption>3. Имя и дата. Прямые поля. Дальше только после обоих ответов.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="device">
+            <section class="screen">
+              <p class="eyebrow">юля, о чём речь</p>
+              <h2>О чём спросить карты?</h2>
+              <label class="field">Вопрос
+                <textarea class="area" readonly>Что мне ждать в отношениях?</textarea>
+              </label>
+              <div class="topics">
+                <span class="topic on">о любви</span>
+                <span class="topic">о работе</span>
+                <span class="topic">о деньгах</span>
+                <span class="topic">о моём пути</span>
+              </div>
+              <button class="btn solid" type="button">Выбрать таролога</button>
+              <button class="btn ghost" type="button">Без вопроса — расклад на день</button>
+              <nav class="dock" aria-label="Дальше по таверне">
+                <span class="on">Вопрос</span>
+                <span>Журнал</span>
+                <span>День</span>
+              </nav>
+            </section>
+          </div>
+          <figcaption>4. Повторный заход начинается здесь. Красным залита только выбранная тема.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="device">
+            <section class="screen">
+              <p class="eyebrow">Стол</p>
+              <h2>К кому сядете?</h2>
+              <p class="read">юля · 7 сентября 1986 · Дева · IV</p>
+              <p class="quiet">«о любви и отношениях»</p>
+              <button class="hero" type="button">
+                <img src="./assets/iris.webp" alt="" />
+                <span><small>Арканум</small><b>Ирис Вейл</b><span>Хозяйка колоды. Три карты на ваш вопрос.</span></span>
+              </button>
+              <button class="hero" type="button">
+                <img src="./assets/cael.webp" alt="" />
+                <span><small>Золотая заря</small><b>Каэль Морн</b><span>Одна карта декана солнца.</span></span>
+              </button>
+              <button class="hero locked" type="button">
+                <span class="portrait"><img src="./assets/nerra.webp" alt="" /><span class="seal">закрыто</span></span>
+                <span><small>Прилив</small><b>Госпожа Нерра</b><span>Место за её столом открывается отдельно.</span></span>
+              </button>
+              <button class="hero locked" type="button">
+                <span class="portrait"><img src="./assets/sol.webp" alt="" /><span class="seal">закрыто</span></span>
+                <span><small>Уголь</small><b>Брат Соль</b><span>Тот же вопрос у очага.</span></span>
+              </button>
+              <div class="links">
+                <button class="btn ghost" type="button">Другой вопрос</button>
+                <button class="btn ghost" type="button">Это не я</button>
+              </div>
+            </section>
+          </div>
+          <figcaption>5. Выбор. Портрет в прямой рамке. Цвет героя — только тонкая черта, не заливка плашки.</figcaption>
+        </figure>
+
+        <figure>
+          <div class="device">
+            <section class="screen">
+              <p class="eyebrow">Ирис Вейл · Арканум</p>
+              <h2>Ваш вопрос</h2>
+              <div class="spread">
+                <article class="tarot">
+                  <img src="./cards/card_emperor.jpg" alt="" />
+                  <i>Суть</i>
+                  <b>Император</b>
+                </article>
+                <article class="tarot">
+                  <img src="./cards/card_priestess.jpg" alt="" />
+                  <i>Делать</i>
+                  <b>Жрица</b>
+                </article>
+                <article class="tarot">
+                  <img src="./cards/card_swords_page.jpg" alt="" />
+                  <i>Итог</i>
+                  <b>Паж мечей</b>
+                </article>
+              </div>
+              <p class="reading"><strong>Суть — Император.</strong> Спокойная уверенность — ваша броня. Наведите порядок там, где шатко.</p>
+              <button class="btn" type="button">Переложить</button>
+              <nav class="dock" aria-label="Дальше по таверне">
+                <span>Вопрос</span>
+                <span class="on">Стол</span>
+                <span>Журнал</span>
+              </nav>
+            </section>
+          </div>
+          <figcaption>6. Стол. Карта в своей рамке, имя под ней читается. Смысл — строкой ниже, не внутри узкой карточки.</figcaption>
+        </figure>
+      </div>
+    </main>
+  </body>
+</html>
