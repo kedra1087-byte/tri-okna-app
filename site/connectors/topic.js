@@ -177,6 +177,27 @@ export function voiceCard(card) {
 /** Позиции стола про людей: у каждой свой текст в колоде, его не склеивают из общих фраз. */
 const PERSON_KEY = { "Вы": "y", "Другой человек": "o", "Что между вами": "b" }
 
+/** Позиции «в стороне» со светлой картой: общий текст карты не звучит как помеха,
+ * поэтому к нему добавляется короткая рамка, почему светлое может мешать. */
+const ASIDE_GLOSS = {
+  "Что мешает": [
+    "Помеха здесь не в плохом: за хорошее держатесь слишком крепко, и оно мешает двигаться дальше.",
+    "Мешает не беда, а привычка: хорошее уже есть, и его жаль тревожить.",
+  ],
+  "Что отпустить": [
+    "Отпустить стоит лишний контроль: хорошее останется и без вашей опёки.",
+    "Отпускать нужно не само хорошее, а тревогу за него.",
+  ],
+}
+
+function asideGloss(line, card, role) {
+  const row = ASIDE_GLOSS[role]
+  if (!row || verdictOf(card?.id) !== "yes") return line
+  let hash = 0
+  for (const ch of String(card?.id || "")) hash = (hash * 33 + ch.charCodeAt(0)) >>> 0
+  return `${line}\n\n${row[hash % row.length]}`
+}
+
 /** Текст карты под тему и позицию. Готовые предложения из колоды идут как есть, без приставок. */
 export function cardLean(card, topic, role = "", question = "", turn = 0) {
   const lines = Q[card?.id] || {}
@@ -188,7 +209,7 @@ export function cardLean(card, topic, role = "", question = "", turn = 0) {
   const asked = preparedFace(question)
   if (asked) {
     const line = faceLine(card, asked, role, turn)
-    if (line) return line
+    if (line) return asideGloss(line, card, role)
   }
   if (role === "Деньги" && lines.m) return lines.m
   if (topic === "l" && lines.l) return lines.l
