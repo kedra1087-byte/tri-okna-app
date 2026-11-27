@@ -179,15 +179,17 @@ const PERSON_KEY = { "Вы": "y", "Другой человек": "o", "Что м
 
 /** Текст карты под тему и позицию. Готовые предложения из колоды идут как есть, без приставок. */
 export function cardLean(card, topic, role = "", question = "", turn = 0) {
+  const lines = Q[card?.id] || {}
+  const meaning = String(card?.meaning || "").trim()
+  // Позиции про людей важнее общего шаблона вопроса: «другого человека» надо описывать,
+  // а не пересказывать значение карты вообще.
+  const person = PERSON_KEY[role]
+  if (person && lines[person]) return lines[person]
   const asked = preparedFace(question)
   if (asked) {
     const line = faceLine(card, asked, role, turn)
     if (line) return line
   }
-  const lines = Q[card?.id] || {}
-  const meaning = String(card?.meaning || "").trim()
-  const person = PERSON_KEY[role]
-  if (person && lines[person]) return lines[person]
   if (role === "Деньги" && lines.m) return lines.m
   if (topic === "l" && lines.l) return lines.l
   if ((topic === "w" || topic === "m") && lines[topic]) return [meaning, lines[topic]].filter(Boolean).join(" ")
