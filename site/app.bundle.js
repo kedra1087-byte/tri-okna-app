@@ -1413,6 +1413,7 @@
       if (kept.length) blocks.push(kept.join(" "));
     }
     if (!blocks.length) return "";
+    if (labeled) blocks[0] = blocks[0].replace(/^\s*вывод\.\s*/i, "");
     if (labeled && !/^\s*итог расклада\./i.test(blocks[0])) blocks[0] = `\u0418\u0442\u043E\u0433 \u0440\u0430\u0441\u043A\u043B\u0430\u0434\u0430. ${blocks[0]}`;
     return blocks.join("\n\n");
   }
@@ -4484,7 +4485,7 @@
   var ARRIVED_KEY = "arkanum_arrived";
   var SETTINGS_KEY = "tri_okna_settings";
   var CONSENT_KEY = "tri_okna_consent";
-  var APP_VERSION = "191";
+  var APP_VERSION = "192";
   var SPREAD_LIMIT = 3;
   var FOLLOW_LIMIT = 3;
   var YESNO_LIMIT = 3;

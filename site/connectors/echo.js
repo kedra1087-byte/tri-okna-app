@@ -44,6 +44,7 @@ export function dropEcho(text, prior, size = 4) {
     if (kept.length) blocks.push(kept.join(" "))
   }
   if (!blocks.length) return ""
+  if (labeled) blocks[0] = blocks[0].replace(/^\s*вывод\.\s*/i, "")
   if (labeled && !/^\s*итог расклада\./i.test(blocks[0])) blocks[0] = `Итог расклада. ${blocks[0]}`
   return blocks.join("\n\n")
 }
