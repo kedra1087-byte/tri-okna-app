@@ -332,6 +332,14 @@ const TIE = {
       "Сворачивайте: там глухо.",
       "Туда — не стоит: проверено.",
     ],
+    stay: [
+      "Здесь и есть ваша сторона: дальше идти не нужно.",
+      "Остановитесь: своё место уже найдено.",
+      "Ваша сторона — под ногами: не ищите новых земель.",
+      "Идти дальше не обязательно: вы уже на своём месте.",
+      "Не сворачивайте и не разгоняйтесь: здесь вам и дорога.",
+      "Своё вы уже нашли: оставайтесь на этой стороне.",
+    ],
     wait: [
       "Сторону выбирать рано: соберите факты, потом решайте.",
       "Не сворачивайте и не разгоняйтесь: сначала карта местности.",
@@ -591,6 +599,15 @@ function jobTone(card) {
   return "wait"
 }
 
+/** Тон на вопросы-действия («как поступить», «соглашаться ли», «какой шаг»):
+ * карта покоя не должна подгонять под движение, а карта движения — уговаривать ждать. */
+function actionTone(card) {
+  const stance = cardStance(card)
+  if (stance === "stay" || stance === "hold") return "no"
+  if (stance === "go" || stance === "do") return "yes"
+  return "wait"
+}
+
 /** Тон на вопрос «уходить или остаться»: светлая карта держит, а не выпроваживает. */
 function leaveTone(card) {
   const stance = cardStance(card)
@@ -606,6 +623,8 @@ function leaveTone(card) {
 function toneKey(card, face) {
   if (face === "leave") return leaveTone(card)
   if (face === "job") return jobTone(card)
+  if (face === "act" || face === "agree" || face === "step") return actionTone(card)
+  if (face === "where" && cardStance(card) === "stay") return "stay"
   return verdictOf(card.id)
 }
 
