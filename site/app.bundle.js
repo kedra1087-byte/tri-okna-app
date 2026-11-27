@@ -625,17 +625,22 @@
     if ((topic === "w" || topic === "m") && lines[topic]) return [meaning, lines[topic]].filter(Boolean).join(" ");
     return meaning;
   }
+  var STEP_FIRST_ROLES = /* @__PURE__ */ new Set(["\u0427\u0442\u043E \u0434\u0435\u043B\u0430\u0442\u044C", "\u0427\u0442\u043E \u043F\u043E\u043C\u043E\u0436\u0435\u0442"]);
   function applyCard(card, question, topic, role = "", turn = 0) {
     card = voiceCard(card);
     const kind = askKind(question);
     const t = topic && topic !== "s" ? topic : kind.topic;
     const advice = Q[card?.id] || {};
     const lean = cardLean(card, t, role, question, turn);
+    const step = bindStep(advice.a || card?.a, { topic: t });
+    const act = STEP_FIRST_ROLES.has(role) && step && lean ? `${step}
+
+${lean}` : lean;
     return {
       kind,
-      act: lean,
+      act,
       lean,
-      step: bindStep(advice.a || card?.a, { topic: t }),
+      step,
       topic: t
     };
   }
@@ -4485,7 +4490,7 @@
   var ARRIVED_KEY = "arkanum_arrived";
   var SETTINGS_KEY = "tri_okna_settings";
   var CONSENT_KEY = "tri_okna_consent";
-  var APP_VERSION = "192";
+  var APP_VERSION = "193";
   var SPREAD_LIMIT = 3;
   var FOLLOW_LIMIT = 3;
   var YESNO_LIMIT = 3;

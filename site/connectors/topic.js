@@ -194,17 +194,22 @@ export function cardLean(card, topic, role = "", question = "", turn = 0) {
   return meaning
 }
 
+/** Позиции, где гость ждёт действия, а не описания: ответ начинается с совета карты. */
+const STEP_FIRST_ROLES = new Set(["Что делать", "Что поможет"])
+
 export function applyCard(card, question, topic, role = "", turn = 0) {
   card = voiceCard(card)
   const kind = askKind(question)
   const t = topic && topic !== "s" ? topic : kind.topic
   const advice = Q[card?.id] || {}
   const lean = cardLean(card, t, role, question, turn)
+  const step = bindStep(advice.a || card?.a, { topic: t })
+  const act = STEP_FIRST_ROLES.has(role) && step && lean ? `${step}\n\n${lean}` : lean
   return {
     kind,
-    act: lean,
+    act,
     lean,
-    step: bindStep(advice.a || card?.a, { topic: t }),
+    step,
     topic: t,
   }
 }
