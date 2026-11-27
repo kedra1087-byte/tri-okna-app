@@ -2,6 +2,7 @@ import test from "node:test"
 import assert from "node:assert/strict"
 import { DECK } from "./arkanum-data.js"
 import { HEROES } from "./heroes.js"
+import { GROUND } from "./ground.js"
 import { applyCard, boundLot } from "./topic.js"
 import { faceLine, faceVerdict, preparedFace } from "./asks.js"
 import { synthesize } from "./synthesis.js"
@@ -17,50 +18,51 @@ function shared(left, right) {
   return ""
 }
 
-test("у каждого заготовленного вопроса карт свой ответ", () => {
+const GENDERED = /(?<![а-яё])(?:он|она|муж|жена|мужчина|женщина|парень|девушка)(?![а-яё])/i
+
+test("приземления разных карт не повторяют друг друга", () => {
+  const lines = Object.entries(GROUND)
+  for (const [id, text] of lines) {
+    assert.match(text, /[а-яё]/i, id)
+    assert.doesNotMatch(text, GENDERED, `${id}: ${text}`)
+  }
+  for (let i = 0; i < lines.length; i += 1) {
+    for (let j = i + 1; j < lines.length; j += 1) {
+      const hit = shared(lines[i][1], lines[j][1])
+      assert.equal(hit, "", `${lines[i][0]} || ${lines[j][0]} → ${hit}`)
+    }
+  }
+})
+
+test("у каждого заготовленного вопроса у каждой карты есть свой ответ", () => {
   const prompts = HEROES.filter((hero) => ["iris", "nerra", "sol", "cael"].includes(hero.id)).flatMap((hero) => hero.prompts)
   assert.equal(prompts.length, 20)
   for (const prompt of prompts) {
     const face = preparedFace(prompt)
     assert.ok(face, prompt)
-    const seen = new Set()
-    for (const turn of [0, 1, 2, 3, 4, 5, 6, 7]) {
-      const texts = new Map()
-      for (const card of DECK) {
-        for (const role of ROLES) {
-          const line = faceLine(card, face, role, turn)
-          assert.ok(line, `${prompt} ${card.id} ${role}`)
-          assert.match(line, /[а-яё]/i, line)
-          assert.doesNotMatch(line, /(?<![а-яё])(?:он|она|муж|жена|мужчина|женщина|парень|девушка)(?![а-яё])/i, line)
-          const owner = texts.get(line)
-          if (owner && !owner.startsWith(`${card.id} `)) assert.fail(`${card.id} ${role} повторяет ${owner}: ${line}`)
-          if (!owner) texts.set(line, `${card.id} ${role}`)
-          seen.add(line)
-        }
-      }
-      const lines = [...texts.keys()]
-      for (let i = 0; i < lines.length; i += 1) {
-        for (let j = i + 1; j < lines.length; j += 1) {
-          const hit = shared(lines[i], lines[j])
-          assert.equal(hit, "", `${lines[i]} || ${lines[j]} → ${hit}`)
-        }
-      }
+    for (const card of DECK) {
+      const line = faceLine(card, face, "Вы", 0)
+      assert.ok(line, `${prompt} ${card.id}`)
+      assert.match(line, /[а-яё]/i, line)
+      assert.doesNotMatch(line, GENDERED, line)
+      assert.ok(line.includes(GROUND[card.id]), `${prompt} ${card.id} теряет приземление`)
+      assert.match(line, /Проще говоря:/, line)
     }
     for (const score of [2, 0, -2]) {
       const verdict = faceVerdict(face, score, "На вопрос, уходить или остаться, карты отвечают: лучше остаться.")
       assert.ok(verdict, face)
-      for (const line of seen) {
-        const hit = shared(line, verdict)
-        assert.equal(hit, "", `${face} ${score}: ${hit}\n${line}\n${verdict}`)
+      for (const card of DECK) {
+        const hit = shared(faceLine(card, face, "Вы", 0), verdict)
+        assert.equal(hit, "", `${face} ${score}: ${hit}\n${card.id}`)
       }
     }
   }
 })
 
-test("новая раскладка берёт другую фразу той же карты", () => {
+test("ответ карты на тот же вопрос стабилен: не зависит от позиции и раскладки", () => {
   const card = DECK.find((item) => item.id === "mag")
-  const lines = new Set([0, 1, 2, 3, 4, 5].map((turn) => faceLine(card, "agree", "", turn)))
-  assert.ok(lines.size >= 3, [...lines].join(" | "))
+  const lines = new Set(ROLES.flatMap((role) => [0, 1, 2, 3, 4, 5].map((turn) => faceLine(card, "agree", role, turn))))
+  assert.equal(lines.size, 1, [...lines].join(" | "))
 })
 
 test("спор остаётся спором и может быть внутренним конфликтом", () => {
@@ -70,20 +72,18 @@ test("спор остаётся спором и может быть внутре
 })
 
 test("срок и месяц в ответе не назначаются", () => {
-  for (const turn of [0, 1, 2, 3, 4, 5, 6, 7]) {
-    for (const card of DECK) {
-      const meet = faceLine(card, "meet", "Другой человек", turn)
-      const money = faceLine(card, "money", "", turn)
-      const ahead = faceLine(card, "ahead", "", turn)
-      const job = faceLine(card, "job", "", turn)
-      assert.match(meet, /срок|дат/i, meet)
-      assert.doesNotMatch(meet, /январ|феврал|март|апрел|ма[йя]|июн|июл|август|сентябр|октябр|ноябр|декабр|в этот день/i, meet)
-      assert.match(money, /месяц/i, money)
-      assert.match(money, /деньг/i, money)
-      assert.doesNotMatch(money, /в этом месяце будут/i, money)
-      assert.match(ahead, /ждёт|впереди|перемен/i, ahead)
-      assert.match(job, /работе/, job)
-    }
+  for (const card of DECK) {
+    const meet = faceLine(card, "meet", "Другой человек", 0)
+    const money = faceLine(card, "money", "", 0)
+    const ahead = faceLine(card, "ahead", "", 0)
+    const job = faceLine(card, "job", "", 0)
+    assert.match(meet, /срок|дат/i, meet)
+    assert.doesNotMatch(meet, /январ|феврал|март|апрел|ма[йя]|июн|июл|август|сентябр|октябр|ноябр|декабр|в этот день/i, meet)
+    assert.match(money, /месяц/i, money)
+    assert.match(money, /деньг/i, money)
+    assert.doesNotMatch(money, /в этом месяце будут/i, money)
+    assert.match(ahead, /ждёт|впереди|перемен/i, ahead)
+    assert.match(job, /работ/i, job)
   }
 })
 

@@ -380,6 +380,42 @@ function worstOf(items) {
   return items.reduce((acc, item) => item.tone < acc.tone ? item : acc, items[0])
 }
 
+/** Детерминированный выбор варианта текста по составу расклада: один и тот же расклад
+ * всегда получает один и тот же вариант, а разные — с большой вероятностью разные. */
+function hashIndex(seed, n) {
+  let hash = 0
+  for (const ch of String(seed)) hash = (hash * 33 + ch.charCodeAt(0)) >>> 0
+  return n ? hash % n : 0
+}
+
+function seedOf(items) {
+  return items.map((item) => `${item.role}:${item.card?.id || item.hint}`).join("|")
+}
+
+const HEAVY_ROLES = new Set(["Другой человек", "Что между вами"])
+
+/** Две карты, на которые опирается вывод: сначала роли про людей, потом самые заряженные по тону. */
+function decisiveItems(items) {
+  const flow = items.filter((item) => !ASIDE.includes(item.role))
+  const heavy = flow.filter((item) => HEAVY_ROLES.has(item.role))
+  const rest = flow
+    .filter((item) => !HEAVY_ROLES.has(item.role))
+    .sort((a, b) => Math.abs(b.tone) - Math.abs(a.tone) || flow.indexOf(a) - flow.indexOf(b))
+  return [...heavy, ...rest].slice(0, 2)
+}
+
+/** Доказательная строка из выпавших карт: имя карты и её приземлённый смысл. */
+function evidenceLine(items) {
+  return decisiveItems(items)
+    .map((item) => {
+      const name = nameOfCard(item.card)
+      const plain = plainOfCard(item.card)
+      return name && plain ? `«${name}» — ${lowerFirst(plain)}` : ""
+    })
+    .filter(Boolean)
+    .join(" ")
+}
+
 function bridge(items, lot = "card") {
   const flow = items.filter((item) => !ASIDE.includes(item.role))
   const moon = items.some((item) => item.role === "Что отпустить")
@@ -388,9 +424,15 @@ function bridge(items, lot = "card") {
   const lines = []
 
   const say = voice(lot)
+  const card = lot === "card"
+  const pick = (list) => list[hashIndex(seedOf(items), list.length)]
   if (you && other && you.tone !== other.tone) {
-    lines.push(lot === "card"
-      ? "Карты как будто спорят, но это потому, что вы и другой человек сейчас в разном состоянии. В разговоре учитывайте и своё настроение, и чужое."
+    lines.push(card
+      ? pick([
+        "Карты как будто спорят, но это потому, что вы и другой человек сейчас в разном состоянии. В разговоре учитывайте и своё настроение, и чужое.",
+        "Разнобой в раскладе честный: вы и другой человек сейчас на разных берегах. Это не ошибка расклада, а разница ваших мест — её и стоит учитывать в разговоре.",
+        `Карты показывают двоих, которые чувствуют по-разному: у вас «${nameOfCard(you.card)}», у другого человека — «${nameOfCard(other.card)}», и это пока не совпадает.`,
+      ])
       : `Ощущение, что карты спорят, здесь от того, что вы и другой человек сейчас в разном состоянии: у вас «${you.hint}», у другого человека — «${other.hint}». Это не ошибка расклада, а разница ваших мест — её и стоит учитывать в разговоре.`)
   }
 
@@ -399,17 +441,42 @@ function bridge(items, lot = "card") {
   const tones = new Set(flow.map((item) => item.tone))
 
   if (tones.size === 1) {
-    if (first.tone > 0) lines.push(say.allPos)
-    else if (first.tone < 0) lines.push(say.allNeg(lot === "card" ? nameOfCard(worstOf(flow).card) || worstOf(flow).hint : worstOf(flow).hint))
-    else lines.push(say.allWait)
+    if (first.tone > 0) {
+      lines.push(card
+        ? pick([
+          say.allPos,
+          "Карты согласны друг с другом: расклад цельный, идти можно.",
+          "Разногласий между картами нет: они тянут в одну сторону.",
+        ])
+        : say.allPos)
+    }
+    else if (first.tone < 0) lines.push(say.allNeg(card ? nameOfCard(worstOf(flow).card) || worstOf(flow).hint : worstOf(flow).hint))
+    else {
+      lines.push(card
+        ? pick([
+          say.allWait,
+          "Карты советуют выдержать паузу: зрелое решение придёт само, если не форсировать.",
+        ])
+        : say.allWait)
+    }
   } else if (!(you && other) && !moon) {
     if (first.tone < last.tone) {
-      lines.push(lot === "card"
-        ? "Сначала будет труднее, чем в конце. Трудное начало не отменяет того, к чему ведут карты: оно показывает, через что придётся пройти."
+      lines.push(card
+        ? pick([
+          "Сначала будет труднее, чем в конце. Трудное начало не отменяет того, к чему ведут карты: оно показывает, через что придётся пройти.",
+          "Расклад идёт от тяжёлого к светлому: начало — не приговор, а дорога, через которую ведут карты.",
+          `Карты ведут вверх: от «${nameOfCard(first.card)}» к «${nameOfCard(last.card)}». Трудное в начале — то, через что нужно пройти, а не то, где остановиться.`,
+        ])
         : `${say.move} ${say.first}, «${first.hint}», — это то, откуда вы начинаете, а ${say.last}, «${last.hint}», — куда можно прийти. ${first.tone < 0 && last.tone > 0 ? say.hardFirst : "Начало не отменяет конец: оно"} объясняет, через что придётся пройти.`)
     } else if (first.tone > last.tone) {
-      lines.push(lot === "card"
-        ? `Начало ${first.tone > 0 ? "светлое" : "ровное"}, а к концу становится тяжелее. ${first.tone > 0 ? "Хорошее само не удержится: его надо поддерживать." : "Это не знак, что всё пропало, а предупреждение: здесь нужно быть внимательнее."}`
+      lines.push(card
+        ? pick([
+          `Начало ${first.tone > 0 ? "светлое" : "ровное"}, а к концу становится тяжелее. ${first.tone > 0 ? "Хорошее само не удержится: его надо поддерживать." : "Это не знак, что всё пропало, а предупреждение: здесь нужно быть внимательнее."}`,
+          first.tone > 0
+            ? "Хорошее начало не гарантирует лёгкий конец: то, что растёт, нужно поддерживать, иначе оно остынет."
+            : "Расклад тяжелеет к концу: то, что в начале давалось ровно, к финишу потребует внимания.",
+          `От «${nameOfCard(first.card)}» к «${nameOfCard(last.card)}» дорога идёт вниз: это предупреждение, где быть внимательнее, а не знак, что всё пропало.`,
+        ])
         : `Начало ${first.tone > 0 ? "светлое" : "ровное"}, но ${say.endLaid} «${last.hint}». Это не значит, что всё испортится: ${first.tone > 0 ? "хорошее нужно поддерживать, само оно не удержится" : "это предупреждение, где быть внимательнее"}.`)
     }
     const middle = lot === "card" ? null : flow.slice(1, -1).find((item) => item.tone !== first.tone)
@@ -422,22 +489,34 @@ function bridge(items, lot = "card") {
 
   const block = items.find((item) => item.role === "Что мешает")
   if (block && block.tone > 0) {
-    lines.push(lot === "card"
-      ? "Мешает, как ни странно, что-то светлое. Даже хорошее отвлекает, если держаться за него слишком крепко."
+    lines.push(card
+      ? pick([
+        `Мешает, как ни странно, что-то светлое — «${nameOfCard(block.card)}». Даже хорошее отвлекает, если держаться за него слишком крепко.`,
+        `Помеха в раскладе — светлая «${nameOfCard(block.card)}»: за хорошее тоже можно держаться слишком крепко, и оно мешает двигаться дальше.`,
+      ])
       : `Мешает, как ни странно, светлая карта — «${block.hint}». Даже хорошее отвлекает, если держаться за него слишком крепко.`)
   } else if (block) {
-    lines.push(lot === "card"
-      ? "Сначала разберитесь с тем, что вам мешает. Пока это не решено, остальное не сдвинется."
+    lines.push(card
+      ? pick([
+        `Сначала разберитесь с «${nameOfCard(block.card)}»: именно эта карта тормозит дело. Пока она не решена, остальное не сдвинется.`,
+        `Главная помеха названа — «${nameOfCard(block.card)}». С ней стоит разобраться в первую очередь: остальное подождёт.`,
+      ])
       : `Карта помехи, «${block.hint}», — то, с чем стоит разобраться в первую очередь: именно она тормозит.`)
   }
   const release = items.find((item) => item.role === "Что отпустить")
   if (release && release.tone > 0) {
-    lines.push(lot === "card"
-      ? "Отпустить предлагается даже то, что кажется хорошим. За хорошее тоже можно держаться слишком крепко: дайте ему свободу."
+    lines.push(card
+      ? pick([
+        `Отпустить предлагается даже то, что кажется хорошим, — «${nameOfCard(release.card)}». За хорошее тоже можно держаться слишком крепко: дайте ему свободу.`,
+        `«${nameOfCard(release.card)}» в позиции отпускания — знак, что и хорошее бывает лишним: дайте ему свободу, и оно не потеряется.`,
+      ])
       : `Отпустить предлагается даже светлую карту — «${release.hint}». За хорошее тоже можно держаться слишком крепко: дайте ему свободу.`)
   } else if (release) {
-    lines.push(lot === "card"
-      ? "То, что тянет вас назад, пора оставить в прошлом: не берите это с собой дальше."
+    lines.push(card
+      ? pick([
+        `То, что тянет вас назад, — «${nameOfCard(release.card)}». Пора оставить это в прошлом и не брать с собой дальше.`,
+        `«${nameOfCard(release.card)}» — груз, который пора снять: не берите его с собой дальше.`,
+      ])
       : `Карта «${release.hint}» — то, что пора оставить в прошлом: не берите это с собой дальше.`)
   }
   return lines.join(" ")
@@ -477,6 +556,7 @@ export function synthesize({ cards = [], question = "", end = "", lot, echo = fa
     return finish([
       lead,
       `Итог расклада. ${head}`,
+      face ? evidenceLine(items) : "",
       step ? `${kind === "card" ? "Что советует карта" : kind === "rune" ? "Что советует руна" : "Что советует знак"} — ${step}` : "",
       end,
     ].filter(Boolean).join("\n\n"))
@@ -498,6 +578,7 @@ export function synthesize({ cards = [], question = "", end = "", lot, echo = fa
       return finish([
         lead,
         `Итог расклада. ${open}`,
+        evidenceLine(items),
         bridge(items, kind),
         step ? `Что советуют карты — ${step}` : "",
         end,
@@ -507,6 +588,7 @@ export function synthesize({ cards = [], question = "", end = "", lot, echo = fa
       return finish([
         lead,
         `Итог расклада. ${faceVerdict(face, score, fork)}`,
+        evidenceLine(items),
         bridge(items, kind),
         step ? `Что советуют карты — ${step}` : "",
         end,

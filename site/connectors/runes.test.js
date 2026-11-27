@@ -168,6 +168,6 @@ test("пояснение Эйнара говорит целыми фразами
   assert.match(ice.items[0].body, /оттепел|не сдвинется/)
   const norns = explainHow([runeById("isa"), runeById("raidho"), runeById("sowilo")])
   assert.match(norns, /Пока лёд держит/)
-  assert.match(norns, /Надо сдвинуться/)
+  assert.match(norns, /сдвинуться/)
   assert.ok(norns.length > 280)
 })

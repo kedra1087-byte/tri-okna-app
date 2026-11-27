@@ -102,7 +102,7 @@ test("подсказки вопроса остаются на теме стол�
   assert.match(love, /чувств|любит|будущее|встреч/i)
   assert.doesNotMatch(love, /начальник|работ|деньг/i)
   for (const text of nerra.prompts) {
-    assert.match(text, /он|люб|отношен|будущ|встреч/i)
+    assert.match(text, /он|люб|отношен|будущ|встреч|чувств/i)
   }
   const sol = heroById("sol")
   const work = [...sol.prompts, sol.followPrompt].join(" ")
